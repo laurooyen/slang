@@ -413,6 +413,32 @@ SlangResult Parser::_parseEnum()
             break;
         }
 
+        // TODO:
+        // Skip # directives in enums. The SlangImageFormat enum in slang.h contains a #include to a
+        // file that defines the cases. For now we don't deal with it, resulting in no cases being
+        // added to that enum.
+        if (tokenType == TokenType::Pound)
+        {
+            while (m_reader.peekTokenType() == TokenType::Pound)
+            {
+                Token token = m_reader.peekToken();
+                if (token.flags & TokenFlag::AtStartOfLine)
+                {
+                    m_reader.advanceToken();
+                    for (;;)
+                    {
+                        auto t = m_reader.peekToken();
+                        if (t.type == TokenType::EndOfFile || (t.flags & TokenFlag::AtStartOfLine))
+                        {
+                            break;
+                        }
+                        m_reader.advanceToken();
+                    }
+                }
+            }
+            break;
+        }
+
         RefPtr<EnumCaseNode> caseNode(new EnumCaseNode);
 
         // We could also check if the name is a valid identifier for name, for now just assume.

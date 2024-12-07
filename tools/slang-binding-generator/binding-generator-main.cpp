@@ -67,6 +67,18 @@ SlangResult App::execute(const Options& options)
 
     NodeTree tree(&m_slicePool, &m_namePool, &identifierLookup);
 
+    const Node::Kind enabledNodeKinds[] = {
+        Node::Kind::ClassType,
+        Node::Kind::StructType,
+        Node::Kind::Namespace,
+        Node::Kind::AnonymousNamespace,
+        Node::Kind::Field,
+        //Node::Kind::TypeDef,
+        Node::Kind::Enum,
+        Node::Kind::EnumClass,
+        Node::Kind::Callable,
+    };
+
     // Read in each of the input files
     for (Index i = 0; i < m_options.m_inputPaths.getCount(); ++i)
     {
@@ -92,6 +104,7 @@ SlangResult App::execute(const Options& options)
         SourceOrigin* sourceOrigin = tree.addSourceOrigin(sourceFile, options);
 
         Parser parser(&tree, m_sink);
+        parser.setKindsEnabled(enabledNodeKinds, SLANG_COUNT_OF(enabledNodeKinds));
         SLANG_RETURN_ON_FAIL(parser.parse(sourceOrigin, &m_options));
     }
 
