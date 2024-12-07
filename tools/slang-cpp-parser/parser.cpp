@@ -1497,6 +1497,9 @@ SlangResult Parser::_parseTypeDef()
     // Consume the typedef
     SLANG_RETURN_ON_FAIL(expect(TokenType::Identifier));
 
+    _maybeConsume(IdentifierStyle::Struct);
+    _maybeConsume(IdentifierStyle::Enum);
+
     Token nameToken;
     // Parse the type
     List<Token> toks;
@@ -1510,6 +1513,17 @@ SlangResult Parser::_parseTypeDef()
 
     if (Node::lookupNameInScope(m_currentScope, nameToken.getContent()))
     {
+        // TODO:
+        // In slang.h these are defined twice as different sizes and then conditionally enabled
+        // based on a define. Since the parser doesn't have a preprocessor, we can't handle this.
+        // Maybe fix this by moving all of the platform-detection stuff out to a separate file as
+        // suggested here: https://github.com/shader-slang/slang/pull/954#discussion_r278687475
+        if (nameToken.getContent() == "SlangInt" || nameToken.getContent() == "SlangUInt" ||
+            nameToken.getContent() == "SlangSSizeT" || nameToken.getContent() == "SlangSizeT")
+        {
+            return SLANG_OK;
+        }
+
         m_sink->diagnose(
             nameToken.loc,
             CPPDiagnostics::identifierAlreadyDefined,

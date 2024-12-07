@@ -73,7 +73,7 @@ SlangResult App::execute(const Options& options)
         Node::Kind::Namespace,
         Node::Kind::AnonymousNamespace,
         Node::Kind::Field,
-        //Node::Kind::TypeDef,
+        Node::Kind::TypeDef,
         Node::Kind::Enum,
         Node::Kind::EnumClass,
         Node::Kind::Callable,
